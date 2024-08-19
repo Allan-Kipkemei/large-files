@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Disease Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input[type="file"] {
+            display: block;
+        }
+        .form-group button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Plant Disease Detection</h1>
+        <form id="upload-form">
+            <div class="form-group">
+                <label for="imageUpload">Upload an Image:</label>
+                <input type="file" id="imageUpload" name="image" accept="image/*" required>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="result"></div>
+    </div>
+    <script>
+      document.getElementById('upload-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    var formData = new FormData();
+    var fileInput = document.getElementById('imageUpload');
+    formData.append('image', fileInput.files[0]);
+
+    fetch('/predict', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            document.getElementById('result').innerText = `Error: ${data.error}`;
+        } else {
+            document.getElementById('result').innerHTML = `
+                <h2>Recommendation:</h2>
+                <p><strong>Description:</strong> ${data.Description}</p>
+                <p><strong>Diagnosis:</strong> ${data.Diagnosis}</p>
+                <p><strong>Recommended Action:</strong> ${data.Recommended_Action}</p>
+                <p><strong>Treatment:</strong> ${data.Treatment}</p>
+                <p><strong>Treatment Timing:</strong> ${data.Treatment_Timing}</p>
+                <p><strong>Prevention:</strong> ${data.Prevention}</p>
+                <p><strong>Monitoring:</strong> ${data.Monitoring}</p>
+                <p><strong>Cultural Practices:</strong> ${data.Cultural_Practices}</p>
+                <p><strong>Physical Controls:</strong> ${data.Physical_Controls}</p>
+                <p><strong>Biological Controls:</strong> ${data.Biological_Controls}</p>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('result').innerText = 'An error occurred. Please try again.';
+    });
+});
+
+    </script>
+</body>
+</html>
